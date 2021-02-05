@@ -3,4 +3,4 @@
  
 # ➡️ Download
 
-Download the latest version on the [](releases) page.
+Download the latest version on the [https://github.com/RomanEsin/PodsUI/releases](releases) page.
