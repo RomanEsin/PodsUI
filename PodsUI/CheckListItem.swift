@@ -11,6 +11,7 @@ struct CheckListItem: View {
 
     @Binding var isChecked: Bool
     let text: String
+    let version: String
 
     @State private var fadeOut = false
 
@@ -29,6 +30,10 @@ struct CheckListItem: View {
                 Text(text)
                     .font(.title3)
                     .lineLimit(2)
+                Text(version)
+                    .font(.title3)
+                    .lineLimit(1)
+                    .foregroundColor(.secondary)
                 Spacer()
                 Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
                     .foregroundColor(isChecked ? .green : .secondary)
@@ -47,7 +52,7 @@ struct CheckListItem: View {
 
 struct CheckListItem_Previews: PreviewProvider {
     static var previews: some View {
-        CheckListItem(isChecked: .constant(true), text: "Test")
+        CheckListItem(isChecked: .constant(true), text: "Test", version: "~> 1.0.0")
             .previewLayout(.sizeThatFits)
     }
 }

@@ -10,10 +10,12 @@ import AppKit
 
 class Pod: ObservableObject {
     let name: String
+    var version: String
     var isEnabled = true
 
-    init(title: String) {
+    init(title: String, version: String) {
         self.name = title
+        self.version = version
     }
 }
 
@@ -81,7 +83,7 @@ struct ContentView: View {
                             .padding(.bottom)
 
                             ForEach(pods.indices, id: \.self) { index in
-                                CheckListItem(isChecked: $pods[index].isEnabled, text: pods[index].name)
+                                CheckListItem(isChecked: $pods[index].isEnabled, text: pods[index].name, version: pods[index].version)
                                     .foregroundColor(pods[index].isEnabled ? Color(NSColor.textColor) : .secondary)
                                     .onChange(of: pods[index].isEnabled, perform: { value in
                                         setPodDisabled(pods[index], disabled: !value)
@@ -120,16 +122,21 @@ struct ContentView: View {
         .frame(minWidth: 500, minHeight: 700)
         .frame(maxWidth: 900, maxHeight: 1000)
         .sheet(isPresented: $addPodIsShown, content: {
-            VStack {
-                Spacer()
+            Form {
                 TextField("New Pod name", text: $newPodText) { editingChanged in
+
+                } onCommit: {
+
+                }
+                .font(.title2)
+
+                TextField("Pod version", text: $newPodText) { editingChanged in
 
                 } onCommit: {
                     addPodIsShown = false
                 }
-                .font(.title)
+                .font(.title2)
 
-                Spacer()
                 Button(action: {
                     addPodIsShown = false
                 }, label: {
@@ -197,7 +204,7 @@ struct ContentView: View {
                     if splitLine.contains("pod"), let podIndex = splitLine.firstIndex(of: "pod") {
                         var podName = splitLine[podIndex + 1]
                         podName.removeAll { $0 == "'" || $0 == "\"" || $0 == "," }
-                        let pod = Pod(title: String(podName))
+                        let pod = Pod(title: String(podName), version: "~> 1.0.0")
                         if splitLine.first == "#" {
                             pod.isEnabled = false
                         }
