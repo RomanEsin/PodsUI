@@ -34,7 +34,7 @@ struct CheckListItem: View {
                     .foregroundColor(isChecked ? .green : .secondary)
                     .font(.title.bold())
                     .scaleEffect(fadeOut ? 0.8 : 1)
-                    .animation(.easeInOut)
+                    .animation(.easeInOut(duration: 0.2))
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
