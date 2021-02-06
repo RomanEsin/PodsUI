@@ -255,7 +255,7 @@ struct ContentView: View {
                     if splitLine.contains("pod"), let podIndex = splitLine.firstIndex(of: "pod") {
                         var podName = splitLine[podIndex + 1]
                         podName.removeAll { $0 == "'" || $0 == "\"" || $0 == "," }
-                        let pod = Pod(title: String(podName), version: "~> 1.0.0")
+                        var pod = Pod(title: String(podName), version: "~> 1.0.0")
                         if splitLine.first == "#" {
                             pod.isEnabled = false
                         }

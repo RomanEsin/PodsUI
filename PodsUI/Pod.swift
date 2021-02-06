@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-class Pod: ObservableObject {
+struct Pod {
     let name: String
     var version: String
     var isEnabled = true
