@@ -27,6 +27,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.center()
         window.setFrameAutosaveName("Main Window")
         window.contentView = NSHostingView(rootView: contentView)
+        window.title = "PodsUI"
         window.makeKeyAndOrderFront(nil)
     }
 

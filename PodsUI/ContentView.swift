@@ -8,21 +8,6 @@
 import SwiftUI
 import AppKit
 
-class Pod: ObservableObject {
-    let name: String
-    var version: String
-    var isEnabled = true
-
-    init(title: String, version: String) {
-        self.name = title
-        self.version = version
-    }
-}
-
-class PodModel: ObservableObject {
-    @Published var pods: [Pod] = []
-}
-
 struct ContentView: View {
 
     @State var projectName = ""
@@ -33,7 +18,9 @@ struct ContentView: View {
     @State var isPresentingFileImporter = false
     @State var addPodIsShown = false
     @State var newPodText = ""
+    @State var newPodVersion = ""
     @State var isLoading = true
+    @State var hasPodfile = false
 
     var body: some View {
         if selectedURL != nil && pods.isEmpty {
@@ -49,56 +36,102 @@ struct ContentView: View {
 
         return ZStack {
             if selectedURL != nil {
-                ScrollView {
+                if hasPodfile {
+                    // MARK: With Podfile
+                    ScrollView {
+                        ZStack {
+                            VStack(alignment: .leading) {
+                                HStack(alignment: .center) {
+                                    Button(action: {
+                                        selectedURL = nil
+                                    }, label: {
+                                        Text("Close")
+                                            .frame(alignment: .trailing)
+                                    })
+
+                                    Spacer()
+                                    HStack {
+                                        Text("Project:")
+                                            .font(.largeTitle)
+                                            .foregroundColor(.secondary)
+                                        Text(projectName)
+                                    }
+                                    .font(.largeTitle.bold())
+                                    .frame(alignment: .center)
+                                    Spacer()
+
+                                    Button(action: {
+                                        addPodIsShown = true
+                                    }, label: {
+                                        Image(systemName: "plus")
+                                            .frame(alignment: .trailing)
+                                    })
+                                }
+                                .padding(.horizontal)
+                                .padding(.bottom)
+
+                                ForEach(pods.indices, id: \.self) { index in
+                                    CheckListItem(isChecked: $pods[index].isEnabled, text: pods[index].name, version: pods[index].version)
+                                        .foregroundColor(pods[index].isEnabled ? Color(NSColor.textColor) : .secondary)
+                                        .onChange(of: pods[index].isEnabled, perform: { value in
+                                            setPodDisabled(pods[index], disabled: !value)
+                                        })
+                                        .frame(maxWidth: .infinity)
+                                    Divider()
+                                }
+                            }
+                            .padding(.vertical)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                    }
+                    .background(Color(NSColor.textBackgroundColor))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .transition(.opacity.animation(.easeInOut(duration: 0.25)))
+                } else {
+                    // MARK: No Podfile
                     ZStack {
-                        VStack(alignment: .leading) {
+                        VStack {
                             HStack {
                                 Button(action: {
                                     selectedURL = nil
-//                                    pods = []
                                 }, label: {
-                                    Image(systemName: "xmark")
+                                    Text("Close")
                                         .frame(alignment: .trailing)
                                 })
-
                                 Spacer()
-                                HStack {
-                                    Text("Project:")
-                                        .font(.largeTitle)
-                                        .foregroundColor(.secondary)
-                                    Text(projectName)
-                                }
+                            }
+                            .padding()
+
+                            Text("No Podfile detected in the project")
                                 .font(.largeTitle.bold())
-                                .frame(alignment: .center)
-                                Spacer()
-
-                                Button(action: {
-                                    addPodIsShown = true
-                                }, label: {
-                                    Image(systemName: "plus")
-                                        .frame(alignment: .trailing)
-                                })
-                            }
-                            .padding(.horizontal)
-                            .padding(.bottom)
-
-                            ForEach(pods.indices, id: \.self) { index in
-                                CheckListItem(isChecked: $pods[index].isEnabled, text: pods[index].name, version: pods[index].version)
-                                    .foregroundColor(pods[index].isEnabled ? Color(NSColor.textColor) : .secondary)
-                                    .onChange(of: pods[index].isEnabled, perform: { value in
-                                        setPodDisabled(pods[index], disabled: !value)
-                                    })
-                                    .frame(maxWidth: .infinity)
-                                Divider()
-                            }
+                                .multilineTextAlignment(.center)
+                                .padding()
+                            Spacer()
                         }
-                        .padding(.vertical)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                        Button(action: {
+                            isPresentingFileImporter = true
+                        }, label: {
+                            VStack(spacing: 16) {
+                                Text("Generate a Podfile")
+                                    .font(.title)
+                                    .foregroundColor(.secondary)
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.system(size: 38))
+                                    .foregroundColor(.blue)
+                            }
+                            .padding(16)
+                            .background(Color(NSColor.windowBackgroundColor).cornerRadius(16))
+                        })
+                        .opacity(isLoading ? 0 : 1)
+                        .animation(.easeInOut(duration: 0.25))
+                        .buttonStyle(PlainButtonStyle())
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .transition(.opacity.animation(.easeInOut(duration: 0.25)))
                 }
-                .background(Color(NSColor.textBackgroundColor))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
+                // MARK: Intro
                 Button(action: {
                     isPresentingFileImporter = true
                 }, label: {
@@ -108,40 +141,57 @@ struct ContentView: View {
                             .foregroundColor(.secondary)
                         Image(systemName: "folder.badge.plus")
                             .font(.system(size: 38))
-                            .foregroundColor(Color(NSColor.textColor))
+                            .foregroundColor(Color.blue)
                     }
                     .padding(16)
                     .background(Color(NSColor.windowBackgroundColor).cornerRadius(16))
                 })
                 .opacity(isLoading ? 0 : 1)
-                .animation(.easeInOut)
+                .animation(.easeInOut(duration: 0.25))
                 .buttonStyle(PlainButtonStyle())
+                .transition(.opacity.animation(.easeInOut(duration: 0.25)))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .frame(minWidth: 500, minHeight: 700)
-        .frame(maxWidth: 900, maxHeight: 1000)
+        .frame(minWidth: 420, minHeight: 600)
+        .frame(maxWidth: 800, maxHeight: .infinity)
         .sheet(isPresented: $addPodIsShown, content: {
             Form {
-                TextField("New Pod name", text: $newPodText) { editingChanged in
+                VStack(alignment: .center) {
+                    Text("Add new Pod")
+                        .font(.title2)
 
-                } onCommit: {
+                    TextField("New Pod name", text: $newPodText) { editingChanged in
 
+                    } onCommit: {
+
+                    }
+                    .font(.title2)
+
+                    TextField("Pod version", text: $newPodVersion) { editingChanged in
+
+                    } onCommit: {
+                        addPodIsShown = false
+                    }
+                    .font(.title2)
+
+                    Spacer()
+
+                    HStack {
+                        Button(action: {
+                            addPodIsShown = false
+                        }, label: {
+                            Text("Cancel")
+                        })
+
+                        Button(action: {
+                            addPodIsShown = false
+                        }, label: {
+                            Text("Add Pod")
+                        })
+                        .disabled(newPodText.count == 0)
+                    }
                 }
-                .font(.title2)
-
-                TextField("Pod version", text: $newPodText) { editingChanged in
-
-                } onCommit: {
-                    addPodIsShown = false
-                }
-                .font(.title2)
-
-                Button(action: {
-                    addPodIsShown = false
-                }, label: {
-                    Text("Cancel")
-                })
             }
             .frame(width: 200, height: 200, alignment: .center)
             .padding()
@@ -197,6 +247,7 @@ struct ContentView: View {
                 $0.deletingPathExtension().lastPathComponent == "Podfile"
             }) {
                 self.podURL = podfileURL
+                self.hasPodfile = true
                 let data = FileManager.default.contents(atPath: podfileURL.path)!
                 let lines = String(data: data, encoding: .utf8)!.split(separator: "\n")
                 for line in lines {
@@ -212,6 +263,8 @@ struct ContentView: View {
                     }
                     pods.sort(by: { $0.name < $1.name} )
                 }
+            } else {
+                self.hasPodfile = false
             }
         } catch {
             print("Error while enumerating files \(selectedURL?.path ?? ""): \(error.localizedDescription)")
@@ -221,6 +274,6 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(pods: [], isPresentingFileImporter: true)
+        ContentView()
     }
 }

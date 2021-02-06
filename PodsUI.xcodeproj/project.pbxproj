@@ -13,6 +13,7 @@
 		F1BD840225CCFC72009447C6 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1BD840125CCFC72009447C6 /* Preview Assets.xcassets */; };
 		F1BD840525CCFC72009447C6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F1BD840325CCFC72009447C6 /* Main.storyboard */; };
 		F1BD840E25CD2BFF009447C6 /* CheckListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BD840D25CD2BFF009447C6 /* CheckListItem.swift */; };
+		F1BD841025CE439E009447C6 /* Pod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BD840F25CE439E009447C6 /* Pod.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +26,7 @@
 		F1BD840625CCFC72009447C6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F1BD840725CCFC72009447C6 /* PodsUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PodsUI.entitlements; sourceTree = "<group>"; };
 		F1BD840D25CD2BFF009447C6 /* CheckListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckListItem.swift; sourceTree = "<group>"; };
+		F1BD840F25CE439E009447C6 /* Pod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pod.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +61,7 @@
 			children = (
 				F1BD83FA25CCFC71009447C6 /* AppDelegate.swift */,
 				F1BD83FC25CCFC71009447C6 /* ContentView.swift */,
+				F1BD840F25CE439E009447C6 /* Pod.swift */,
 				F1BD840D25CD2BFF009447C6 /* CheckListItem.swift */,
 				F1BD83FE25CCFC72009447C6 /* Assets.xcassets */,
 				F1BD840325CCFC72009447C6 /* Main.storyboard */,
@@ -150,6 +153,7 @@
 				F1BD840E25CD2BFF009447C6 /* CheckListItem.swift in Sources */,
 				F1BD83FD25CCFC71009447C6 /* ContentView.swift in Sources */,
 				F1BD83FB25CCFC71009447C6 /* AppDelegate.swift in Sources */,
+				F1BD841025CE439E009447C6 /* Pod.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
