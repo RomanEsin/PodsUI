@@ -4,16 +4,16 @@
 # Preview
 
 ### 1. Select project folder
-![Select Project folder](https://github.com/RomanEsin/PodsUI/blob/main/openfile.png)
+![Select Project folder](openfile.png)
 
 ### 2. Generate Podfile for your project
-![Generate Podfile](https://github.com/RomanEsin/PodsUI/blob/main/generate.png)
+![Generate Podfile](generate.png)
 
 ### 3. Add new Pods to your project
-![Add new pods](https://github.com/RomanEsin/PodsUI/blob/main/addpod.png)
+![Add new pods](addpod.png)
 
 ### 4. Disable or enable pods
-![Opened project](https://github.com/RomanEsin/PodsUI/blob/main/project.png)
+![Opened project](project.png)
  
 # ➡️ Download
 
