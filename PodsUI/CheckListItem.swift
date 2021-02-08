@@ -9,16 +9,14 @@ import SwiftUI
 
 struct CheckListItem: View {
 
-    @Binding var isChecked: Bool
-    let text: String
-    let version: String
+    @Binding var pod: Pod
 
     @State private var fadeOut = false
 
     var body: some View {
         Button(action: {
             fadeOut = true
-            isChecked.toggle()
+            pod.isEnabled.toggle()
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 withAnimation {
@@ -27,16 +25,16 @@ struct CheckListItem: View {
             }
         }, label: {
             HStack {
-                Text(text)
+                Text(pod.name)
                     .font(.title3)
                     .lineLimit(2)
-                Text(version)
+                Text(pod.version)
                     .font(.title3)
                     .lineLimit(1)
                     .foregroundColor(.secondary)
                 Spacer()
-                Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
-                    .foregroundColor(isChecked ? .green : .secondary)
+                Image(systemName: pod.isEnabled ? "checkmark.circle.fill" : "circle")
+                    .foregroundColor(pod.isEnabled ? .green : .secondary)
                     .font(.title.bold())
                     .scaleEffect(fadeOut ? 0.8 : 1)
                     .animation(.easeInOut(duration: 0.2))
@@ -52,7 +50,8 @@ struct CheckListItem: View {
 
 struct CheckListItem_Previews: PreviewProvider {
     static var previews: some View {
-        CheckListItem(isChecked: .constant(true), text: "Test", version: "~> 1.0.0")
-            .previewLayout(.sizeThatFits)
+        Text("")
+//        CheckListItem(isChecked: .constant(true), text: "Test", version: "~> 1.0.0")
+//            .previewLayout(.sizeThatFits)
     }
 }

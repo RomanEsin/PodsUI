@@ -8,42 +8,92 @@
 import SwiftUI
 import AppKit
 
+@discardableResult
+func shell(_ args: String...) -> Int32 {
+    let task = Process()
+    task.launchPath = "/usr/bin/env"
+    task.arguments = args
+    task.launch()
+    task.waitUntilExit()
+    return task.terminationStatus
+}
+
+class Project: ObservableObject {
+    @AppStorage("selectedURL") var selectedURL: URL?
+
+    @Published var pods: [Pod] = []
+    @Published var podURL: URL?
+    @Published var hasPodfile = false
+    @Published var projectName = ""
+    @Published var isLoading = true
+
+
+    func loadPods(_ url: URL) {
+        self.selectedURL = url
+        do {
+            let fileURLs = try FileManager.default.contentsOfDirectory(at: selectedURL!, includingPropertiesForKeys: nil)
+            projectName = selectedURL!.lastPathComponent
+
+            if let podfileURL = fileURLs.first(where: {
+                $0.deletingPathExtension().lastPathComponent == "Podfile"
+            }) {
+                self.podURL = podfileURL
+                self.hasPodfile = true
+                let data = FileManager.default.contents(atPath: podfileURL.path)!
+                let lines = String(data: data, encoding: .utf8)!.split(separator: "\n")
+                for line in lines {
+                    let splitLine = line.split(separator: " ")
+                    if splitLine.contains("pod"), let podIndex = splitLine.firstIndex(of: "pod") {
+                        var podName = splitLine[podIndex + 1]
+                        podName.removeAll { $0 == "'" || $0 == "\"" || $0 == "," }
+                        var pod = Pod(title: String(podName), version: "~> 1.0.0")
+                        if splitLine.first == "#" {
+                            pod.isEnabled = false
+                        }
+                        pods.append(pod)
+                    }
+                    pods.sort(by: { $0.name < $1.name} )
+                }
+            } else {
+                self.hasPodfile = false
+            }
+        } catch {
+            print("Error while enumerating files \(selectedURL?.path ?? ""): \(error.localizedDescription)")
+        }
+    }
+}
+
 struct ContentView: View {
 
-    @State var projectName = ""
-    @State var pods: [Pod] = []
-    @AppStorage("selectedURL") var selectedURL: URL?
-    @State var podURL: URL?
+    @StateObject var podProject = Project()
 
     @State var isPresentingFileImporter = false
     @State var addPodIsShown = false
     @State var newPodText = ""
     @State var newPodVersion = ""
-    @State var isLoading = true
-    @State var hasPodfile = false
 
     var body: some View {
-        if selectedURL != nil && pods.isEmpty {
+        if podProject.selectedURL != nil && podProject.pods.isEmpty {
             DispatchQueue.main.async {
-                loadPods()
-                isLoading = false
+                podProject.loadPods(podProject.selectedURL!)
+                podProject.isLoading = false
             }
         } else {
             DispatchQueue.main.async {
-                isLoading = false
+                podProject.isLoading = false
             }
         }
 
         return ZStack {
-            if selectedURL != nil {
-                if hasPodfile {
+            if podProject.selectedURL != nil {
+                if podProject.hasPodfile {
                     // MARK: With Podfile
                     ScrollView {
                         ZStack {
                             VStack(alignment: .leading) {
                                 HStack(alignment: .center) {
                                     Button(action: {
-                                        selectedURL = nil
+                                        podProject.selectedURL = nil
                                     }, label: {
                                         Text("Close")
                                             .frame(alignment: .trailing)
@@ -54,7 +104,7 @@ struct ContentView: View {
                                         Text("Project:")
                                             .font(.largeTitle)
                                             .foregroundColor(.secondary)
-                                        Text(projectName)
+                                        Text(podProject.projectName)
                                     }
                                     .font(.largeTitle.bold())
                                     .frame(alignment: .center)
@@ -70,11 +120,12 @@ struct ContentView: View {
                                 .padding(.horizontal)
                                 .padding(.bottom)
 
-                                ForEach(pods.indices, id: \.self) { index in
-                                    CheckListItem(isChecked: $pods[index].isEnabled, text: pods[index].name, version: pods[index].version)
-                                        .foregroundColor(pods[index].isEnabled ? Color(NSColor.textColor) : .secondary)
-                                        .onChange(of: pods[index].isEnabled, perform: { value in
-                                            setPodDisabled(pods[index], disabled: !value)
+                                ForEach(podProject.pods.indices, id: \.self) { index in
+                                    CheckListItem(pod: .init(get: { podProject.pods[index] },
+                                                             set: { podProject.pods[index] = $0 }))
+                                        .foregroundColor(podProject.pods[index].isEnabled ? Color(NSColor.textColor) : .secondary)
+                                        .onChange(of: podProject.pods[index].isEnabled, perform: { value in
+                                            setPodDisabled(podProject.pods[index], disabled: !value)
                                         })
                                         .frame(maxWidth: .infinity)
                                     Divider()
@@ -93,7 +144,7 @@ struct ContentView: View {
                         VStack {
                             HStack {
                                 Button(action: {
-                                    selectedURL = nil
+                                    podProject.selectedURL = nil
                                 }, label: {
                                     Text("Close")
                                         .frame(alignment: .trailing)
@@ -110,7 +161,8 @@ struct ContentView: View {
                         }
 
                         Button(action: {
-                            isPresentingFileImporter = true
+                            print(shell("cd \(podProject.selectedURL!);", "pod", "init"))
+                            //                            isPresentingFileImporter = true
                         }, label: {
                             VStack(spacing: 16) {
                                 Text("Generate a Podfile")
@@ -123,7 +175,7 @@ struct ContentView: View {
                             .padding(16)
                             .background(Color(NSColor.windowBackgroundColor).cornerRadius(16))
                         })
-                        .opacity(isLoading ? 0 : 1)
+                        .opacity(podProject.isLoading ? 0 : 1)
                         .animation(.easeInOut(duration: 0.25))
                         .buttonStyle(PlainButtonStyle())
                     }
@@ -146,7 +198,7 @@ struct ContentView: View {
                     .padding(16)
                     .background(Color(NSColor.windowBackgroundColor).cornerRadius(16))
                 })
-                .opacity(isLoading ? 0 : 1)
+                .opacity(podProject.isLoading ? 0 : 1)
                 .animation(.easeInOut(duration: 0.25))
                 .buttonStyle(PlainButtonStyle())
                 .transition(.opacity.animation(.easeInOut(duration: 0.25)))
@@ -199,8 +251,7 @@ struct ContentView: View {
         .fileImporter(isPresented: $isPresentingFileImporter, allowedContentTypes: [.folder]) { result in
             switch result {
             case .success(let result):
-                selectedURL = result
-                loadPods()
+                podProject.loadPods(result)
             case .failure(let error):
                 print(error)
             }
@@ -208,7 +259,7 @@ struct ContentView: View {
     }
 
     func setPodDisabled(_ pod: Pod, disabled: Bool = true) {
-        guard let podURL = self.podURL,
+        guard let podURL = self.podProject.podURL,
               let fileString = try? String(contentsOf: podURL) else { return }
 
         var lines = fileString.split(separator: "\n")
@@ -235,39 +286,6 @@ struct ContentView: View {
             try fullFile.write(to: podURL, atomically: true, encoding: .utf8)
         } catch {
             print(error)
-        }
-    }
-
-    func loadPods() {
-        do {
-            let fileURLs = try FileManager.default.contentsOfDirectory(at: selectedURL!, includingPropertiesForKeys: nil)
-            projectName = selectedURL!.lastPathComponent
-
-            if let podfileURL = fileURLs.first(where: {
-                $0.deletingPathExtension().lastPathComponent == "Podfile"
-            }) {
-                self.podURL = podfileURL
-                self.hasPodfile = true
-                let data = FileManager.default.contents(atPath: podfileURL.path)!
-                let lines = String(data: data, encoding: .utf8)!.split(separator: "\n")
-                for line in lines {
-                    let splitLine = line.split(separator: " ")
-                    if splitLine.contains("pod"), let podIndex = splitLine.firstIndex(of: "pod") {
-                        var podName = splitLine[podIndex + 1]
-                        podName.removeAll { $0 == "'" || $0 == "\"" || $0 == "," }
-                        var pod = Pod(title: String(podName), version: "~> 1.0.0")
-                        if splitLine.first == "#" {
-                            pod.isEnabled = false
-                        }
-                        pods.append(pod)
-                    }
-                    pods.sort(by: { $0.name < $1.name} )
-                }
-            } else {
-                self.hasPodfile = false
-            }
-        } catch {
-            print("Error while enumerating files \(selectedURL?.path ?? ""): \(error.localizedDescription)")
         }
     }
 }
