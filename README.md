@@ -1,5 +1,5 @@
 # PodsUI
-## 🚧 Work In Progress 🚧
+## 🚧 Work in Progress 🚧
 ## A simple Mac app to manage your cocoapods.
 
 # Preview
