@@ -5,16 +5,19 @@
 # Preview
 
 ### 1. Select project folder
-![Select Project folder](openfile.png)
+![Select Project folder](res/openfile.png)
+
+### Or drag and drop file folder
+![Drop file folder](res/preview.gif)
 
 ### 2. Generate Podfile for your project
-![Generate Podfile](generate.png)
+![Generate Podfile](res/generate.png)
 
 ### 3. Add new Pods to your project
-![Add new pods](addpod.png)
+![Add new pods](res/addpod.png)
 
 ### 4. Disable or enable pods
-![Opened project](project.png)
+![Opened project](res/project.png)
  
 # ➡️ Download
 
