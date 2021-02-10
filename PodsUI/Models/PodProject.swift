@@ -42,7 +42,7 @@ class Project: ObservableObject {
                 for line in lines {
                     let splitLine = line.split(separator: " ")
 
-                    let regex = try! NSRegularExpression(pattern: "  pod ['\"].*['\"]")
+                    let regex = try! NSRegularExpression(pattern: ".*pod ['\"].*['\"]")
                     let range = NSRange(location: 0, length: line.utf16.count)
                     guard regex.firstMatch(in: String(line), options: [], range: range) != nil else { continue }
 
