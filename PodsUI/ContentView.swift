@@ -19,7 +19,17 @@ func shell(_ args: String...) -> Int32 {
 }
 
 class Project: ObservableObject {
-    @AppStorage("selectedURL") var selectedURL: URL?
+    @AppStorage("selectedURL") var selectedURL: URL? {
+        didSet {
+            podURL = nil
+            hasPodfile = false
+            projectName = ""
+            isLoading = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.pods = []
+            }
+        }
+    }
 
     @Published var pods: [Pod] = []
     @Published var podURL: URL?
@@ -196,7 +206,8 @@ struct ContentView: View {
                             .foregroundColor(Color.blue)
                     }
                     .padding(16)
-                    .background(Color(NSColor.windowBackgroundColor).cornerRadius(16))
+                    .background(Color(NSColor.textBackgroundColor))
+                    .cornerRadius(16)
                 })
                 .opacity(podProject.isLoading ? 0 : 1)
                 .animation(.easeInOut(duration: 0.25))
