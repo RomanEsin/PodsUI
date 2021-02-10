@@ -7,7 +7,7 @@
 ### 1. Select project folder
 ![Select Project folder](res/openfile.png)
 
-### Or drag and drop file folder
+### Or drag and drop project folder
 ![Drop file folder](res/preview.gif)
 
 ### 2. Generate Podfile for your project
