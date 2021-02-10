@@ -10,7 +10,7 @@ import AppKit
 
 struct ContentView: View {
 
-    @StateObject var podProject = Project()
+    @StateObject var podProject = Project.shared
 
     @State var isPresentingFileImporter = false
     @State var addPodIsShown = false

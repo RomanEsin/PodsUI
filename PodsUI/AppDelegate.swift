@@ -13,6 +13,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     var window: NSWindow!
 
+    func application(_ sender: NSApplication, openFile filename: String) -> Bool {
+        guard let url = URL(string: filename),
+              url.pathExtension == "" else { return false }
+
+        Project.shared.selectedURL = url
+        Project.shared.loadPods(url)
+        return true
+    }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Create the SwiftUI view that provides the window contents.

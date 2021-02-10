@@ -8,6 +8,8 @@
 import SwiftUI
 
 class Project: ObservableObject {
+    static let shared = Project()
+
     @AppStorage("selectedURL") var selectedURL: URL? {
         didSet {
             podURL = nil
