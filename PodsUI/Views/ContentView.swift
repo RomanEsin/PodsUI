@@ -8,71 +8,6 @@
 import SwiftUI
 import AppKit
 
-@discardableResult
-func shell(_ args: String...) -> Int32 {
-    let task = Process()
-    task.launchPath = "/usr/bin/env"
-    task.arguments = args
-    task.launch()
-    task.waitUntilExit()
-    return task.terminationStatus
-}
-
-class Project: ObservableObject {
-    @AppStorage("selectedURL") var selectedURL: URL? {
-        didSet {
-            podURL = nil
-            hasPodfile = false
-            projectName = ""
-            isLoading = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.pods = []
-            }
-        }
-    }
-
-    @Published var pods: [Pod] = []
-    @Published var podURL: URL?
-    @Published var hasPodfile = false
-    @Published var projectName = ""
-    @Published var isLoading = true
-
-
-    func loadPods(_ url: URL) {
-        self.selectedURL = url
-        do {
-            let fileURLs = try FileManager.default.contentsOfDirectory(at: selectedURL!, includingPropertiesForKeys: nil)
-            projectName = selectedURL!.lastPathComponent
-
-            if let podfileURL = fileURLs.first(where: {
-                $0.deletingPathExtension().lastPathComponent == "Podfile"
-            }) {
-                self.podURL = podfileURL
-                self.hasPodfile = true
-                let data = FileManager.default.contents(atPath: podfileURL.path)!
-                let lines = String(data: data, encoding: .utf8)!.split(separator: "\n")
-                for line in lines {
-                    let splitLine = line.split(separator: " ")
-                    if splitLine.contains("pod"), let podIndex = splitLine.firstIndex(of: "pod") {
-                        var podName = splitLine[podIndex + 1]
-                        podName.removeAll { $0 == "'" || $0 == "\"" || $0 == "," }
-                        var pod = Pod(title: String(podName), version: "~> 1.0.0")
-                        if splitLine.first == "#" {
-                            pod.isEnabled = false
-                        }
-                        pods.append(pod)
-                    }
-                    pods.sort(by: { $0.name < $1.name} )
-                }
-            } else {
-                self.hasPodfile = false
-            }
-        } catch {
-            print("Error while enumerating files \(selectedURL?.path ?? ""): \(error.localizedDescription)")
-        }
-    }
-}
-
 struct ContentView: View {
 
     @StateObject var podProject = Project()
@@ -85,6 +20,7 @@ struct ContentView: View {
     var body: some View {
         if podProject.selectedURL != nil && podProject.pods.isEmpty {
             DispatchQueue.main.async {
+                guard podProject.selectedURL != nil else { return }
                 podProject.loadPods(podProject.selectedURL!)
                 podProject.isLoading = false
             }
@@ -148,6 +84,24 @@ struct ContentView: View {
                     .background(Color(NSColor.textBackgroundColor))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .transition(.opacity.animation(.easeInOut(duration: 0.25)))
+
+                    if podProject.pods.isEmpty {
+                        VStack {
+                            Text("No Pods are in the project right now.")
+                                .font(.title2)
+                                .foregroundColor(.secondary)
+
+                            Button {
+                                addPodIsShown = true
+                            } label: {
+                                LargeButton(title: "Add Pod",
+                                            systemName: "plus.circle.fill")
+                            }
+                            .animation(.easeInOut(duration: 0.25))
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
                 } else {
                     // MARK: No Podfile
                     ZStack {
@@ -171,19 +125,17 @@ struct ContentView: View {
                         }
 
                         Button(action: {
-                            print(shell("cd \(podProject.selectedURL!);", "pod", "init"))
-                            //                            isPresentingFileImporter = true
-                        }, label: {
-                            VStack(spacing: 16) {
-                                Text("Generate a Podfile")
-                                    .font(.title)
-                                    .foregroundColor(.secondary)
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.system(size: 38))
-                                    .foregroundColor(.blue)
+                            let bash = Bash()
+                            
+                            if let log = try? bash.run(commandName: "bash",
+                                                     arguments: ["-c", "cd \(podProject.selectedURL!.path); /usr/local/bin/pod init;"]) {
+                                print(log)
+                                podProject.loadPods(podProject.selectedURL!)
                             }
-                            .padding(16)
-                            .background(Color(NSColor.windowBackgroundColor).cornerRadius(16))
+
+                        }, label: {
+                            LargeButton(title: "Generate a Podfile",
+                                        systemName: "plus.circle.fill")
                         })
                         .opacity(podProject.isLoading ? 0 : 1)
                         .animation(.easeInOut(duration: 0.25))
@@ -197,17 +149,8 @@ struct ContentView: View {
                 Button(action: {
                     isPresentingFileImporter = true
                 }, label: {
-                    VStack(spacing: 16) {
-                        Text("Select project folder")
-                            .font(.title)
-                            .foregroundColor(.secondary)
-                        Image(systemName: "folder.badge.plus")
-                            .font(.system(size: 38))
-                            .foregroundColor(Color.blue)
-                    }
-                    .padding(16)
-                    .background(Color(NSColor.textBackgroundColor))
-                    .cornerRadius(16)
+                    LargeButton(title: "Select project folder",
+                                systemName: "folder.badge.plus")
                 })
                 .opacity(podProject.isLoading ? 0 : 1)
                 .animation(.easeInOut(duration: 0.25))

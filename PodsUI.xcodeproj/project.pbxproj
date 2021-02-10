@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F1ACCFB325D4163900A3B7DD /* Bash.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1ACCFB225D4163900A3B7DD /* Bash.swift */; };
+		F1ACCFB525D4165C00A3B7DD /* PodProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1ACCFB425D4165C00A3B7DD /* PodProject.swift */; };
+		F1ACCFB925D418A700A3B7DD /* LargeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1ACCFB825D418A700A3B7DD /* LargeButton.swift */; };
 		F1BD83FB25CCFC71009447C6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BD83FA25CCFC71009447C6 /* AppDelegate.swift */; };
 		F1BD83FD25CCFC71009447C6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BD83FC25CCFC71009447C6 /* ContentView.swift */; };
 		F1BD83FF25CCFC72009447C6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1BD83FE25CCFC72009447C6 /* Assets.xcassets */; };
@@ -18,6 +21,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F1ACCFB225D4163900A3B7DD /* Bash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bash.swift; sourceTree = "<group>"; };
+		F1ACCFB425D4165C00A3B7DD /* PodProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodProject.swift; sourceTree = "<group>"; };
+		F1ACCFB825D418A700A3B7DD /* LargeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeButton.swift; sourceTree = "<group>"; };
 		F1BD83F725CCFC71009447C6 /* PodsUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PodsUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1BD83FA25CCFC71009447C6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F1BD83FC25CCFC71009447C6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -42,6 +48,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F1ACCFB625D4167600A3B7DD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F1ACCFB225D4163900A3B7DD /* Bash.swift */,
+				F1BD840F25CE439E009447C6 /* Pod.swift */,
+				F1ACCFB425D4165C00A3B7DD /* PodProject.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		F1ACCFB725D4168100A3B7DD /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F1BD83FC25CCFC71009447C6 /* ContentView.swift */,
+				F1BD840D25CD2BFF009447C6 /* CheckListItem.swift */,
+				F1ACCFB825D418A700A3B7DD /* LargeButton.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		F1BD83EE25CCFC71009447C6 = {
 			isa = PBXGroup;
 			children = (
@@ -63,9 +89,8 @@
 			isa = PBXGroup;
 			children = (
 				F1BD83FA25CCFC71009447C6 /* AppDelegate.swift */,
-				F1BD83FC25CCFC71009447C6 /* ContentView.swift */,
-				F1BD840F25CE439E009447C6 /* Pod.swift */,
-				F1BD840D25CD2BFF009447C6 /* CheckListItem.swift */,
+				F1ACCFB725D4168100A3B7DD /* Views */,
+				F1ACCFB625D4167600A3B7DD /* Models */,
 				F1BD83FE25CCFC72009447C6 /* Assets.xcassets */,
 				F1BD840325CCFC72009447C6 /* Main.storyboard */,
 				F1BD840625CCFC72009447C6 /* Info.plist */,
@@ -156,8 +181,11 @@
 			files = (
 				F1BD840E25CD2BFF009447C6 /* CheckListItem.swift in Sources */,
 				F1BD83FD25CCFC71009447C6 /* ContentView.swift in Sources */,
+				F1ACCFB325D4163900A3B7DD /* Bash.swift in Sources */,
 				F1BD83FB25CCFC71009447C6 /* AppDelegate.swift in Sources */,
+				F1ACCFB925D418A700A3B7DD /* LargeButton.swift in Sources */,
 				F1BD841025CE439E009447C6 /* Pod.swift in Sources */,
+				F1ACCFB525D4165C00A3B7DD /* PodProject.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
